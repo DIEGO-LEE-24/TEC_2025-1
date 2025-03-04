@@ -1,0 +1,291 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
+package aplicacion;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+
+public class AplCuenta_P1 {
+   static String[] nombres;
+   static String[] cedulas;
+   static double[] saldos;
+   static String[] idCuentas;
+   static int numCuentas = 0;
+   static BufferedReader in;
+   static PrintStream out;
+
+   public AplCuenta_P1() {
+   }
+
+   public static void main(String[] var0) throws IOException {
+      nombres = new String[10];
+      cedulas = new String[10];
+      saldos = new double[10];
+      idCuentas = new String[10];
+      in = new BufferedReader(new InputStreamReader(System.in));
+      out = System.out;
+      boolean var1 = true;
+
+      do {
+         mostrarMenu();
+         int var2 = leerOpcion();
+         var1 = ejecutarAccion(var2);
+      } while(var1);
+
+   }
+
+   static void mostrarMenu() {
+      out.println("1. Registrar Cliente");
+      out.println("2. Abrir una Cuenta");
+      out.println("3. Realizar Transacción");
+      out.println("4. Consultar Información");
+      out.println("5. Salir");
+   }
+
+   static int leerOpcion() throws IOException {
+      out.print("Seleccione su opción: ");
+      int var0 = Integer.parseInt(in.readLine());
+      out.println();
+      return var0;
+   }
+
+   static boolean ejecutarAccion(int var0) throws IOException {
+      boolean var1 = true;
+      boolean var2 = false;
+      switch (var0) {
+         case 1:
+            registrarCliente();
+            break;
+         case 2:
+            abrirCuenta();
+            break;
+         case 3:
+            realizarTransacciones();
+            break;
+         case 4:
+            mostrarMenuConsultas();
+            int var3 = leerOpcion();
+            ejecutarConsultas(var3);
+            break;
+         case 5:
+            var1 = false;
+            break;
+         default:
+            out.println("Opción no válida");
+      }
+
+      out.println();
+      return var1;
+   }
+
+   static void registrarCliente() throws IOException {
+      out.print("Ingrese el número de cédula: ");
+      String var0 = in.readLine();
+      out.println();
+      int var1 = buscarCliente(var0);
+      if (numCuentas < 10) {
+         if (var1 == -1) {
+            cedulas[numCuentas] = var0;
+            out.print("Ingrese el nombre y el apellido: ");
+            nombres[numCuentas] = in.readLine();
+            ++numCuentas;
+            out.println("\nEl cliente ha sido registrado!!!\n");
+         } else {
+            out.println("\nEl cliente ya existe");
+         }
+      } else {
+         out.println("\nNo se pueden registrar más clientes");
+      }
+
+   }
+
+   static void abrirCuenta() throws IOException {
+      out.print("Ingrese el número de cédula del cliente que será dueño de la cuenta: ");
+      String var0 = in.readLine();
+      out.println();
+      boolean var1 = true;
+      String var2 = "";
+
+      do {
+         int var3 = buscarCliente(var0);
+         if (var3 == -1) {
+            out.println("Cliente no registrado");
+            out.print("Desea buscar otro (s/n): ");
+            var2 = in.readLine();
+            if (var2.charAt(0) != 's' && var2.charAt(0) != 'S') {
+               var1 = false;
+            } else {
+               out.print("Ingrese el número de cédula: ");
+               var0 = in.readLine();
+               out.println();
+            }
+         } else {
+            char var10000 = var0.charAt(0);
+            if (buscarCuenta("" + var10000 + var3) == -1) {
+               double var4;
+               do {
+                  out.print("Ingrese el monto (>= 1000) con el que desea abrir la cuenta: ");
+                  var4 = Double.parseDouble(in.readLine());
+                  out.println();
+               } while(var4 < 1000.0);
+
+               saldos[var3] = var4;
+               String[] var6 = idCuentas;
+               char var10002 = var0.charAt(0);
+               var6[var3] = "" + var10002 + var3;
+               String var10001 = idCuentas[var3];
+               out.println("Cuenta abierta exitosamente. Número de cuenta: " + var10001);
+            } else {
+               out.println("Cuenta ya fue abierta");
+            }
+
+            var1 = false;
+         }
+
+         out.println();
+      } while(var1);
+
+   }
+
+   static int buscarCliente(String var0) {
+      int var1 = -1;
+      boolean var2 = false;
+
+      for(int var3 = 0; var3 < cedulas.length && cedulas[var3] != null && !var2; ++var3) {
+         if (cedulas[var3].equals(var0)) {
+            var1 = var3;
+            var2 = true;
+         }
+      }
+
+      return var1;
+   }
+
+   static void listarCuentasIds() {
+      for(int var0 = 0; var0 < idCuentas.length; ++var0) {
+         if (idCuentas[var0] != null) {
+            out.println(idCuentas[var0]);
+         }
+      }
+
+   }
+
+   static void mostrarMenuTransacciones() {
+      out.println("1. Depositar");
+      out.println("2. Retirar");
+      out.println("3. Ver Saldo");
+      out.println("4. Salir");
+      out.println();
+   }
+
+   static int verificarCuenta() throws IOException {
+      out.print("Ingrese el número de cuenta: ");
+      String var0 = in.readLine();
+      out.println();
+      return buscarCuenta(var0);
+   }
+
+   static int buscarCuenta(String var0) {
+      int var1 = -1;
+
+      for(int var2 = 0; var2 < idCuentas.length && var1 == -1; ++var2) {
+         if (idCuentas[var2] != null && idCuentas[var2].equals(var0)) {
+            var1 = var2;
+         }
+      }
+
+      return var1;
+   }
+
+   static void mostrarMenuConsultas() {
+      out.println("1. Ver clientes por cédula");
+      out.println("2. Ver clientes por nombre");
+      out.println("3. Ver Cuentas por número");
+      out.println();
+   }
+
+   static void ejecutarConsultas(int var0) {
+      switch (var0) {
+         case 1:
+            listarInformacion(cedulas);
+            break;
+         case 2:
+            listarInformacion(nombres);
+            break;
+         case 3:
+            listarCuentasIds();
+            break;
+         default:
+            out.println("Valor no válido");
+      }
+
+      out.println();
+   }
+
+   static void listarInformacion(String[] var0) {
+      for(int var1 = 0; var1 < var0.length && var0[var1] != null; ++var1) {
+         out.println(var0[var1]);
+      }
+
+   }
+
+   static boolean ejecutarTransacciones(int var0, int var1) throws IOException {
+      boolean var2 = true;
+      switch (var0) {
+         case 1:
+            depositar(var1);
+            break;
+         case 2:
+            retirar(var1);
+            break;
+         case 3:
+            verSaldo(var1);
+            break;
+         case 4:
+            var2 = false;
+            break;
+         default:
+            out.println("Valor no válido");
+      }
+
+      out.println();
+      return var2;
+   }
+
+   static void realizarTransacciones() throws IOException {
+      int var0 = verificarCuenta();
+      if (var0 != -1) {
+         String var10001 = cedulas[var0];
+         out.println("Cédula: " + var10001);
+         var10001 = nombres[var0];
+         out.println("Cliente: " + var10001);
+         out.println();
+         boolean var2 = true;
+
+         do {
+            mostrarMenuTransacciones();
+            int var1 = leerOpcion();
+            var2 = ejecutarTransacciones(var1, var0);
+         } while(var2);
+      } else {
+         out.println("Cuenta no existe");
+      }
+
+   }
+
+   static void depositar(int var0) throws IOException {
+      out.print("Ingrese el monto del depósito: ");
+      double var1 = Double.parseDouble(in.readLine());
+      out.println();
+      double[] var10000 = saldos;
+      var10000[var0] += var1;
+      out.println("Su depósito fue de " + var1 + " colones");
+   }
+
+   static void retirar(int var0) throws IOException {
+   }
+
+   static void verSaldo(int var0) throws IOException {
+   }
+}
