@@ -6,7 +6,17 @@ IniciaDatos Macro NombreSegmento
     pop ax
 EndM
 
+divida Macro dividendo, divisor, cociente, residuo
+    mov ax,dividendo
+    div divisor
+    mov cociente,ax
+    mov residuo,dx
+EndM
+
 LeerCaracter Macro CaracterLeido
+    mov ah, 01h
+    int 21h
+    mov CaracterLeido, al
     Local comienceAcA, vartemporal
     jmp comienceAcA
 

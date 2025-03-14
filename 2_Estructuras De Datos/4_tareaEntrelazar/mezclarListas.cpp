@@ -1,11 +1,12 @@
 #include <iostream>
+#include <unordered_set>
 using namespace std;
 
 // Definición de un nodo para lista simplemente enlazada
 struct Nodo {
     int valor;
     Nodo* siguiente;
-    Nodo(int v) : valor(v), siguiente(NULL) {}
+    Nodo(int v) : valor(v), siguiente(nullptr) {}
 };
 
 // Clase ListaSimple
@@ -13,11 +14,24 @@ class ListaSimple {
 public:
     Nodo* primero;
     
-    ListaSimple() : primero(NULL) {}
+    ListaSimple() : primero(nullptr) {}
+
+    // Destructor que libera la memoria de los nodos, evitando doble eliminación
+    ~ListaSimple() {
+        // Conjunto estático para llevar registro de los nodos ya liberados
+        static unordered_set<Nodo*> nodosLiberados;
+        Nodo* actual = primero;
+        while (actual != nullptr && nodosLiberados.find(actual) == nodosLiberados.end()) {
+            nodosLiberados.insert(actual);
+            Nodo* temp = actual->siguiente;
+            delete actual;
+            actual = temp;
+        }
+    }
     
     // Verifica si la lista está vacía
-    bool listaVacia() {
-        return (primero == NULL);
+    bool listaVacia() const {
+        return (primero == nullptr);
     }
     
     // Inserta un valor al final de la lista
@@ -27,17 +41,17 @@ public:
             primero = nuevo;
         } else {
             Nodo* aux = primero;
-            while (aux->siguiente != NULL) {
+            while (aux->siguiente != nullptr) {
                 aux = aux->siguiente;
             }
             aux->siguiente = nuevo;
         }
     }
     
-    // Muestra la lista recorriendo los nodos hasta NULL
-    void mostrar() {
+    // Muestra la lista recorriendo los nodos hasta nullptr
+    void mostrar() const {
         Nodo* aux = primero;
-        while (aux != NULL) {
+        while (aux != nullptr) {
             cout << aux->valor << " ";
             aux = aux->siguiente;
         }
@@ -45,9 +59,9 @@ public:
     }
     
     // Sobrecarga de mostrar: muestra hasta n nodos (para evitar bucles infinitos en listas circulares)
-    void mostrar(int n) {
+    void mostrar(int n) const {
         Nodo* aux = primero;
-        for (int i = 0; i < n && aux != NULL; i++) {
+        for (int i = 0; i < n && aux != nullptr; i++) {
             cout << aux->valor << " ";
             aux = aux->siguiente;
         }
@@ -55,10 +69,10 @@ public:
     }
     
     // Devuelve el último nodo de la lista
-    Nodo* getUltimo() {
-        if (listaVacia()) return NULL;
+    Nodo* getUltimo() const {
+        if (listaVacia()) return nullptr;
         Nodo* aux = primero;
-        while (aux->siguiente != NULL) {
+        while (aux->siguiente != nullptr) {
             aux = aux->siguiente;
         }
         return aux;
@@ -95,25 +109,26 @@ int main() {
     // 2) Modificar punteros:
     //    - El último nodo de L1 apuntará al primero de L2
     //    - El último nodo de L2 apuntará, por ejemplo, al tercer nodo de L1 (valor 3)
-    Nodo* ultimoL1 = L1.getUltimo(); // debería ser 56
-    Nodo* ultimoL2 = L2.getUltimo(); // debería ser 5
+    Nodo* ultimoL1 = L1.getUltimo(); // Se espera que sea el nodo con valor 56
+    Nodo* ultimoL2 = L2.getUltimo(); // Se espera que sea el nodo con valor 5
     
-    // El último de L1 apunta al primero de L2
-    if (ultimoL1 != NULL && L2.primero != NULL) {
+    // Validar y modificar punteros
+    if (ultimoL1 != nullptr && L2.primero != nullptr) {
         ultimoL1->siguiente = L2.primero;
+    } else {
+        cerr << "Error: No se puede modificar L1, alguno de los nodos es nulo." << endl;
     }
     
-    // El último de L2 (5) apuntará al tercer nodo de L1
-    if (ultimoL2 != NULL 
-        && L1.primero != NULL 
-        && L1.primero->siguiente != NULL 
-        && L1.primero->siguiente->siguiente != NULL) {
+    if (ultimoL2 != nullptr 
+        && L1.primero != nullptr 
+        && L1.primero->siguiente != nullptr 
+        && L1.primero->siguiente->siguiente != nullptr) {
         ultimoL2->siguiente = L1.primero->siguiente->siguiente;
+    } else {
+        cerr << "Error: No se puede modificar L2, alguno de los nodos requeridos es nulo." << endl;
     }
     
     cout << "[Después de modificar punteros]" << endl;
-    
-    // 3) Mostrar L1 y L2
     cout << "L1 (mostrar 12 nodos): ";
     L1.mostrar(12);  // Se espera mostrar hasta 12 nodos
     cout << "L2 (mostrar 8 nodos): ";
